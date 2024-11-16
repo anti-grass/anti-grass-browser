@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Say No To Grass!!!</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        #urlBar {
+            flex-grow: 1;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        #controls {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        button {
+            margin-right: 5px;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #ff5722;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #e64a19;
+        }
+
+        #tabContainer {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 5px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab.active {
+            background-color: white;
+            font-weight: bold;
+        }
+
+        .close-tab {
+            margin-left: 10px;
+            background: none;
+            border: none;
+            color: red;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .add-tab {
+            padding: 10px 15px;
+            background-color: #ff5722;
+            color: white;
+            cursor: pointer;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        #webview {
+            width: 100%;
+            height: calc(100% - 75px);
+            border: none;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .anti-grass-background {
+            background-image: url('https://img.icons8.com/external-flat-juicy-fish/50/ff5722/external-grass-kids-flat-flat-juicy-fish.png');
+            background-size: 30px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .secure-icon {
+            margin-left: 5px;
+        }
+
+        .not-secure {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="tabContainer">
+        <div class="tab active anti-grass-background" data-url="https://www.google.com">
+            No Grass Allowed
+            <button class="close-tab" aria-label="Close tab">&times;</button>
+        </div>
+        <div class="tab anti-grass-background" data-url="https://www.bing.com">
+            Grass? No Thanks!
+            <button class="close-tab" aria-label="Close tab">&times;</button>
+        </div>
+        <button class="add-tab" id="addTabBtn">+</button>
+    </div>
+
+    <div id="controls">
+        <button id="backBtn" aria-label="Back" disabled>
+            <img src="./assets/lawnmowerleft.png" class="icon" alt="Back" />
+        </button>
+        <button id="forwardBtn" aria-label="Forward" disabled>
+            <img src="./assets/lawnmowerright.png" class="icon" alt="Forward" />
+        </button>
+        <button id="reloadBtn" aria-label="Reload">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/synchronize.png" class="icon" alt="Reload" />
+        </button>
+        <input type="text" id="urlBar" placeholder="Enter URL here to avoid grass" />
+        <span id="securityStatus"></span>
+    </div>
+    <webview id="webview" src="https://www.google.com" partition="persist:main"></webview>
+
+    <script>
+        const urlBar = document.getElementById('urlBar');
+        const webview = document.getElementById('webview');
+        const backBtn = document.getElementById('backBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+        const reloadBtn = document.getElementById('reloadBtn');
+        const addTabBtn = document.getElementById('addTabBtn');
+        const securityStatus = document.getElementById('securityStatus');
+        const tabContainer = document.getElementById('tabContainer');
+        let tabCount = 2;
+
+        function updateSecurityStatus(url) {
+            const isSecure = url.startsWith('https://');
+            securityStatus.innerHTML = '';
+
+            if (isSecure) {
+                securityStatus.innerHTML = '<img src="https://img.icons8.com/ios-filled/20/4CAF50/lock-2.png" class="secure-icon" alt="Secure" />';
+            } else {
+                securityStatus.innerHTML = '<span class="not-secure">Not Secure</span>';
+            }
+
+            securityStatus.onclick = () => {
+                const options = confirm("Options:\n1. Show Certificate\n2. Clear Cookies and Cache\n\nClick OK for Show Certificate, Cancel for Clear Cookies and Cache");
+                if (options) {
+                    showCertificate(url); 
+                } else {
+                    clearCookiesAndCache(url);
+                }
+            };
+        }
+
+        function showCertificate(url) {
+            alert("Showing certificate for: " + url);
+        }
+
+        function clearCookiesAndCache(url) {
+            alert("Clearing cookies and cache for: " + url);
+        }
+
+        urlBar.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                const url = urlBar.value;
+                const fullUrl = url.startsWith('http') ? url : 'http://' + url;
+                webview.src = fullUrl; 
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            webview.goBack();
+        });
+
+        forwardBtn.addEventListener('click', () => {
+            webview.goForward();
+        });
+
+        reloadBtn.addEventListener('click', () => {
+            webview.reload();
+        });
+
+        webview.addEventListener('did-navigate', (e) => {
+            const activeTab = tabContainer.querySelector('.tab.active');
+            if (activeTab) {
+                activeTab.dataset.url = e.url; 
+                urlBar.value = e.url; 
+                updateSecurityStatus(e.url);
+            }
+
+            backBtn.disabled = !webview.canGoBack();
+            forwardBtn.disabled = !webview.canGoForward();
+        });
+
+        function setActiveTab(tab) {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            webview.src = tab.dataset.url;
+            urlBar.value = tab.dataset.url; 
+            updateSecurityStatus(tab.dataset.url);
+        }
+
+        let tabs = tabContainer.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                setActiveTab(tab);
+            });
+
+            const closeBtn = tab.querySelector('.close-tab');
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                tab.remove(); 
+                if (tab.classList.contains('active')) {
+                    const nextTab = tab.previousElementSibling || tab.nextElementSibling;
+                    if (nextTab) {
+                        setActiveTab(nextTab);
+                    }
+                }
+            });
+        });
+
+        addTabBtn.addEventListener('click', () => {
+            const newTab = document.createElement('div');
+            newTab.classList.add('tab');
+            newTab.dataset.url = 'https://www.google.com';
+            newTab.textContent = `Grass? No Thanks!`;
+            newTab.innerHTML += '<button class="close-tab" aria-label="Close tab">&times;</button>';
+            tabContainer.insertBefore(newTab, addTabBtn);
+            setActiveTab(newTab);
+
+            newTab.addEventListener('click', () => {
+                setActiveTab(newTab);
+            });
+
+            const closeBtn = newTab.querySelector('.close-tab');
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                newTab.remove();
+                if (newTab.classList.contains('active')) {
+                    const nextTab = newTab.previousElementSibling || newTab.nextElementSibling;
+                    if (nextTab) {
+                        setActiveTab(nextTab);
+                    }
+                }
+            });
+        });
+
+        updateSecurityStatus(webview.src);
+    </script>
+</body>
+</html>

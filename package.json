@@ -1,0 +1,21 @@
+{
+  "name": "anti-grass-browser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nw ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nw": "^0.92.0"
+  },
+  "window": {
+    "toolbar": false,
+    "width": 1024,
+    "height": 768
+  }
+}
